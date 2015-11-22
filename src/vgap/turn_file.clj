@@ -9,7 +9,31 @@
           string
           (apply string-replace string (first others) (second others) (drop 2 others)))))
 
-; For JSON validatin issues use https://jsonformatter.curiousconcept.com/
+; For JSON validation issues use https://jsonformatter.curiousconcept.com/
+
+; Need to extract information that will be needed for game representation.
+; ( Based roughly on http://help.planets.nu/Ladder )
+;
+;   game ID
+;   game name
+;   game type (campaign, classic, standard, melee, championship, MvM, custom public, custom private, senior officer, team, training)
+;   win conditions
+;   winner(s)
+;   player slots:
+;     slot number
+;     race
+;     players:
+;       user ID
+;       user name
+;       start turn
+;       start date
+;       end turn
+;       end date
+;       start planets
+;       start military
+;       end planets
+;       end military
+;       end condition (resign, drop, win, FoF, survive)
 
 (defn convert [turn-string]
   (let [cleaned (string-replace turn-string

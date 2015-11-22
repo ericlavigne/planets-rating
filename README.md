@@ -1,6 +1,6 @@
 # VGAP Rating System
 
-Replacement [Rating System](http://planets.nu/#/howtoplay/Ladder) for [Planets Nu](http://planets.nu).
+Replacement [Rating System](http://help.planets.nu/Ladder) for [Planets Nu](http://planets.nu).
 
 ## Setup
 
