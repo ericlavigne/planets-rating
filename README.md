@@ -35,5 +35,6 @@ cd planets-rating
 cp settings.clj.example settings.clj
 (Modify settings.clj to contain your real AWS credentials.)
 boot test
+lein test vgap.turn-file-test
 ```
 

@@ -81,8 +81,8 @@
                (assert (= game-id-str (str game-id)))
                game-id))
           (:objects (s3/list-objects creds "vgap" {:prefix "game/loadall/"})))))
-  
-(defn fetch-game-full-from-s3
+
+(defn fetch-game-full-from-s3 ; Fetching from s3 takes about 10 seconds
   ([gameid]
      (fetch-game-full-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([gameid creds]
@@ -98,6 +98,8 @@
 ; (first (zip-file-map (fetch-game-full-from-s3 100282) (fn [s] (apply str (take 50 s)))))
 ;
 ;   => "{\"settings\": {\"name\":\"NQ-PLS-70\",\"turn\":0,\"buildqu"
+;
+; Applying to large game, such as 100282 example above, takes about two minutes.
 ;
 (defn zip-file-map [file fun]
   (let [buffer (byte-array 2048)

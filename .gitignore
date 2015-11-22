@@ -1,3 +1,6 @@
 *~
 settings.clj
 .nrepl-history
+target
+.lein-failures
+.lein-repl-history
