@@ -19,7 +19,8 @@
 ;  (use 'vgap.game-file) (time (convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/nq-pls-70-2014.txt"))))
 
 (defn convert-turns-to-game [turns]
-  (let [turn (first turns)
+  (let [turns (filter #(> (:turn-num %) 0) turns) ; Remove turn 0, which doesn't seem meaningful and has a lot of missing data.
+        turn (first turns)
         turn-num-to-turns (group-by :turn-num turns)
         turn-nums (sort (keys turn-num-to-turns))]
     {:id (:game-id turn)
