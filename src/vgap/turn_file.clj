@@ -43,6 +43,7 @@
                   #"\"planets\"\s*:\s*\]" "\"scores\": []")
         data (json/read-str cleaned)
         settings (get data "settings")
+        turn-num (get settings "turn")
         game (get data "game")
         player (get data "player")
         players (get data "players") ; Probably don't need this. Might fill in information for other missing turns.
@@ -54,9 +55,14 @@
         ;           messages, mymessages, racehulls, beams, torpedoes, engines, advantages
         slot-num (get player "id")
         my-scores (first (filter #(= slot-num (get % "ownerid")) scores))
+        score-planets (get my-scores "planets")
+        planets (get data "planets")
+        score-planets (if (and score-planets (or (> turn-num 5) (> score-planets 0)))
+                          score-planets ; Believe score unless missing or 0 in first few turns.
+                          (count (filter #(= slot-num (get % "ownerid")) planets)))
         ]
     {:game-name (get settings "name")
-     :turn-num (get settings "turn")
+     :turn-num turn-num
      :turn-start (get settings "hostcompleted") ; Not sure about this mapping
      :turn-end (get settings "hoststart") ; Not sure about this mapping
      :max-allies (get settings "maxallies")
@@ -82,7 +88,7 @@
      :priority-points (get player "prioritypoints")
      :active-hulls (vec (.split (get player "activehulls") ","))
      :active-advantages (vec (.split (get player "activeadvantages") ","))
-     :score-planets (get my-scores "planets")
+     :score-planets score-planets
      :score-capital (get my-scores "capitalships")
      :score-freighter (get my-scores "freighters")
      :score-bases (get my-scores "starbases")

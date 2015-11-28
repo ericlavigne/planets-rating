@@ -9,5 +9,10 @@
   (testing "NQ-PLS-70 (2014) turn 0 - happy if it parses without exceptions"
     (let [t (turn/convert (slurp "test/vgap/turn_examples/player6-turn0.trn"))]
       (is (= "NQ-PLS-70" (:game-name t)))))
+  (testing "NQ-PLS-70 (2014) turn 1 - scores show 0 planets but should be 1"
+    (let [t (turn/convert (slurp "test/vgap/turn_examples/player6-turn1.trn"))]
+      (is (= "NQ-PLS-70" (:game-name t)))
+      (is (= 1 (:score-planets t)))
+    ))
    )
 

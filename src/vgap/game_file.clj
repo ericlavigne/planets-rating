@@ -5,8 +5,6 @@
 (defn convert-turns-for-game-file [game-file]
   (rating/zip-file-map game-file turn/convert))
 
-; (use 'vgap.game-file) (time (write-example-turns-for-game-id-to-file 100282 "test/vgap/turn_list_examples/nq-pls-70-2014.txt"))
-
 (defn write-example-turns-for-game-id-to-file [game-id file-name]
   (let [game-file (rating/fetch-game-full-from-s3 game-id)
         turns (convert-turns-for-game-file game-file)
@@ -15,8 +13,6 @@
       (binding [clojure.pprint/*print-right-margin* 120]
         (clojure.pprint/pprint sorted-turns w)
         file-name))))
-
-;  (use 'vgap.game-file) (time (convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/nq-pls-70-2014.txt"))))
 
 (defn convert-turns-to-game [turns]
   (let [turns (filter #(> (:turn-num %) 0) turns) ; Remove turn 0, which doesn't seem meaningful and has a lot of missing data.
