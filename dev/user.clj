@@ -17,6 +17,8 @@
   [{:game-id 100282 :game-name "nq-pls-2014" :turns #{[6 0] [6 1] [6 102]}}
    {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}}])
 
+; (refresh-example-files {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}})
+
 (defn refresh-example-files
   ([] (doseq [g example-games] (refresh-example-files g)))
   ([g]
@@ -76,7 +78,9 @@
         cleaned (turn-file/cleanup-json turn-string)]
     (json/read-str cleaned)))
 
+(def m5 (parse-turn-json "madonna-p5-t167"))
+(def m6 (parse-turn-json "madonna-p6-t167"))
 (def m11 (parse-turn-json "madonna-p11-t167"))
 
-(pprint (m11 "relations"))
+; (pprint (m5 "relations"))
 
