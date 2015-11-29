@@ -8,6 +8,13 @@
       (is (= "NQ-PLS-70" (:name g)))
       (is (= 100282 (:id g)))
       (is (= 1 (get-in g [:planets 1 6])) "I (borg) had 1 planet on the first turn.")
+      (is (= 1 (get-in g [:bases 1 6])))
+      (is (= 0 (get-in g [:warships 1 6])))
+      (is (= 1 (get-in g [:freighters 1 6])))
       (is (= 107 (get-in g [:planets 102 6])) "I (borg) had 107 planets on the last turn.")
+      (is (= 12 (get-in g [:bases 102 6])))
+      (is (= 36 (get-in g [:warships 102 6])))
+      (is (= 5 (get-in g [:freighters 102 6])))
+      (is (= 491566 (get-in g [:military-score 102 6])))
     )))
 

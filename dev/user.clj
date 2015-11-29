@@ -15,3 +15,7 @@
 (defn convert-nq-pls []
   (time (game-file/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/nq-pls-70-2014.txt")))))
 
+(defn show-nq-pls []
+  (binding [clojure.pprint/*print-right-margin* 120]
+    (pprint (convert-nq-pls))))
+

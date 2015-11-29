@@ -31,6 +31,34 @@
                           (map (fn [turn] [(:slot-num turn) (:score-planets turn)])
                                (get turn-num-to-turns turn-num)))])
                      turn-nums))
+     :bases (into (sorted-map)
+              (map (fn [turn-num]
+                     [turn-num
+                      (into (sorted-map)
+                        (map (fn [turn] [(:slot-num turn) (:score-bases turn)])
+                             (get turn-num-to-turns turn-num)))])
+                   turn-nums))
+     :warships (into (sorted-map)
+                 (map (fn [turn-num]
+                        [turn-num
+                         (into (sorted-map)
+                           (map (fn [turn] [(:slot-num turn) (:score-capital turn)])
+                                (get turn-num-to-turns turn-num)))])
+                      turn-nums))
+     :freighters (into (sorted-map)
+                   (map (fn [turn-num]
+                          [turn-num
+                           (into (sorted-map)
+                             (map (fn [turn] [(:slot-num turn) (:score-freighter turn)])
+                                  (get turn-num-to-turns turn-num)))])
+                        turn-nums))
+     :military-score (into (sorted-map)
+                       (map (fn [turn-num]
+                              [turn-num
+                               (into (sorted-map)
+                                 (map (fn [turn] [(:slot-num turn) (:score-military turn)])
+                                      (get turn-num-to-turns turn-num)))])
+                            turn-nums))
      }
   ))
 
