@@ -18,47 +18,56 @@
   (let [turns (filter #(> (:turn-num %) 0) turns) ; Remove turn 0, which doesn't seem meaningful and has a lot of missing data.
         turn (first turns)
         turn-num-to-turns (group-by :turn-num turns)
-        turn-nums (sort (keys turn-num-to-turns))]
-    {:id (:game-id turn)
-     :name (:game-name turn)
-     :short-description (:game-short-description turn)
-     :win-condition (:win-condition turn)
-     ; winners - not sure how to get this. calculate based on win condition and relationships?
-     :planets (into (sorted-map)
+        turn-nums (sort (keys turn-num-to-turns))
+        planets  (into (sorted-map)
                 (map (fn [turn-num]
                        [turn-num
                         (into (sorted-map)
                           (map (fn [turn] [(:slot-num turn) (:score-planets turn)])
                                (get turn-num-to-turns turn-num)))])
                      turn-nums))
-     :bases (into (sorted-map)
+        bases  (into (sorted-map)
               (map (fn [turn-num]
                      [turn-num
                       (into (sorted-map)
                         (map (fn [turn] [(:slot-num turn) (:score-bases turn)])
                              (get turn-num-to-turns turn-num)))])
                    turn-nums))
-     :warships (into (sorted-map)
+        warships  (into (sorted-map)
                  (map (fn [turn-num]
                         [turn-num
                          (into (sorted-map)
                            (map (fn [turn] [(:slot-num turn) (:score-capital turn)])
                                 (get turn-num-to-turns turn-num)))])
                       turn-nums))
-     :freighters (into (sorted-map)
+        freighters  (into (sorted-map)
                    (map (fn [turn-num]
                           [turn-num
                            (into (sorted-map)
                              (map (fn [turn] [(:slot-num turn) (:score-freighter turn)])
                                   (get turn-num-to-turns turn-num)))])
                         turn-nums))
-     :military-score (into (sorted-map)
+        military-score  (into (sorted-map)
                        (map (fn [turn-num]
                               [turn-num
                                (into (sorted-map)
                                  (map (fn [turn] [(:slot-num turn) (:score-military turn)])
                                       (get turn-num-to-turns turn-num)))])
                             turn-nums))
+        max-turn (apply max turn-nums)
+        ; Highest planet count at end, ignoring alliances and winning conditions
+        winning-slot (first (last (sort-by #(get % 1) (get planets 102))))
+       ]
+    {:id (:game-id turn)
+     :name (:game-name turn)
+     :short-description (:game-short-description turn)
+     :win-condition (:win-condition turn)
+     :winners [winning-slot]
+     :planets planets
+     :bases bases
+     :warships warships
+     :freighters freighters
+     :military-score military-score
      }
   ))
 

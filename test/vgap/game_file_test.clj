@@ -16,5 +16,6 @@
       (is (= 36 (get-in g [:warships 102 6])))
       (is (= 5 (get-in g [:freighters 102 6])))
       (is (= 491566 (get-in g [:military-score 102 6])))
+      (is (= [10] (:winners g)) "Yahoud won the game (Rebels, slot 10)")
     )))
 
