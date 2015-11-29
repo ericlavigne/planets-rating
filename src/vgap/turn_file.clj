@@ -1,5 +1,20 @@
 (ns vgap.turn-file
-  (:require [clojure.data.json :as json]))
+  (:require [clojure.data.json :as json]
+            [clj-time.core :as time]
+            [clj-time.format :as timef]
+            [clj-time.coerce :as timec]))
+
+(def nu-datetime-format (timef/formatter "MM/dd/YYYY h:mm:ss a"))
+
+(defn parse-nu-datetime-as-date [datetime-string]
+  "Parse Nu-style datetime like 9/23/2014 6:35:52 PM and return date (without time)"
+  (.toLocalDate (timef/parse nu-datetime-format datetime-string)))
+
+(defn date-to-iso-format [date]
+  (timef/unparse (timef/formatter "YYYY-MM-dd") (.toDateTimeAtStartOfDay date)))
+
+(defn nu-datetime-to-iso-date [nu-date]
+  (date-to-iso-format (parse-nu-datetime-as-date nu-date)))
 
 (defn string-replace
   "Like clojure.string/replace but supports multiple regex/replacement pairs"
@@ -85,11 +100,15 @@
                                                  (= (get % "beams") 0))
                                            ships)))
         ]
-    (into (sorted-map)
-      {:game-name (get settings "name")
+    (sorted-map
+       :game-name (get settings "name")
        :turn-num turn-num
-       :turn-start (get settings "hostcompleted") ; Not sure about this mapping
-       :turn-end (get settings "hoststart") ; Not sure about this mapping
+       :turn-date (let [date-string (get game "lasthostdate")
+                        scheduled-string (get settings "hoststart")]
+                    (or (when-not (empty? date-string)
+                          (nu-datetime-to-iso-date date-string))
+                        (when-not (empty? scheduled-string)
+                          (nu-datetime-to-iso-date scheduled-string))))
        :max-allies (get settings "maxallies")
        :map-width (get settings "mapwidth")
        :map-height (get settings "mapheight")
@@ -118,5 +137,5 @@
        :score-freighter score-freighter
        :score-bases score-bases
        :score-military (get my-scores "militaryscore")
-       })))
+       )))
 

@@ -5,6 +5,9 @@
             [clojure.pprint :refer (pprint)]
             [clojure.repl :refer :all]
             [clojure.test :as test]
+            [clj-time.core :as time]
+            [clj-time.format :as timef]
+            [clj-time.coerce :as timec]
             [vgap.game-file :as game-file]
             [vgap.turn-file :as turn-file]
             [vgap.rating :as rating]))
@@ -18,4 +21,11 @@
 (defn show-nq-pls []
   (binding [clojure.pprint/*print-right-margin* 120]
     (pprint (convert-nq-pls))))
+
+(defn convert-nq-pls-turn []
+  (turn-file/convert (slurp "test/vgap/turn_examples/player6-turn102.trn")))
+
+(defn show-nq-pls-turn []
+  (binding [clojure.pprint/*print-right-margin* 120]
+    (pprint (convert-nq-pls-turn))))
 

@@ -19,7 +19,7 @@
       (is (= [10] (:winners g)) "Yahoud won the game (Rebels, slot 10)")
       (is (= (get-in g [:slots 5])
              {:race 5
-              :players [{:account-name "incideous" :account-id 1887 :start-turn 1 :end-turn 85}
-                        {:account-name "scotty2beam" :account-id 18497 :start-turn 86 :end-turn 102}]}))
+              :players [{:account-name "incideous" :account-id 1887 :start-turn 1 :start-date "2014-06-19" :end-turn 85 :end-date "2015-01-12"}
+                        {:account-name "scotty2beam" :account-id 18497 :start-turn 86 :start-date "2015-01-14" :end-turn 102 :end-date "2015-03-21"}]}))
     )))
 

@@ -81,7 +81,9 @@
                                                                           (:account-id previous)
                                                                           (or (:account-id previous) (:account-id turn)))
                                                           :start-turn (:start-turn previous)
-                                                          :end-turn (:turn-num turn))])
+                                                          :start-date (or (:start-date previous) (:turn-date turn))
+                                                          :end-turn (:turn-num turn)
+                                                          :end-date (or (:turn-date turn) (:end-date previous)))])
                                                ; Different player - turn creates new record
                                                :else
                                                (concat players [(sorted-map
@@ -90,11 +92,17 @@
                                                                                   nil
                                                                                   (:account-id turn))
                                                                   :start-turn (:turn-num turn)
-                                                                  :end-turn (:turn-num turn))])
+                                                                  :end-turn (:turn-num turn)
+                                                                  :start-date (:turn-date turn)
+                                                                  :end-date (:turn-date turn))])
                                             )))
                                          []
                                          turns))))])
                      slot-nums))
+        turn-data (into (sorted-map)
+                    (map (fn [turn-num]
+                           [turn-num {:date (:turn-date (first (get turn-num-to-turns turn-num)))}])
+                         turn-nums))
        ]
     (sorted-map
       :id (:game-id turn)
@@ -108,6 +116,7 @@
       :freighters freighters
       :military-score military-score
       :slots slots
+      :turns turn-data
      )
   ))
 
