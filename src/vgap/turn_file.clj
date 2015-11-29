@@ -48,6 +48,7 @@
         player (get data "player")
         players (get data "players") ; Probably don't need this. Might fill in information for other missing turns.
         scores (get data "scores")
+        planets (get data "planets")
         ships (get data "ships") ; Complicated. Will be useful later for estimating player's standing early in game. (firepower, influence, intel)
         bases (get data "starbases")
         relations (get data "relations") ; alliance, safe passage
@@ -55,11 +56,34 @@
         ;           messages, mymessages, racehulls, beams, torpedoes, engines, advantages
         slot-num (get player "id")
         my-scores (first (filter #(= slot-num (get % "ownerid")) scores))
+        ; Believe score unless missing or 0 in first few turns.
         score-planets (get my-scores "planets")
-        planets (get data "planets")
-        score-planets (if (and score-planets (or (> turn-num 5) (> score-planets 0)))
-                          score-planets ; Believe score unless missing or 0 in first few turns.
+        score-planets (if (and score-planets
+                               (or (> turn-num 5) (> score-planets 0)))
+                          score-planets
                           (count (filter #(= slot-num (get % "ownerid")) planets)))
+        score-bases (get my-scores "starbases")
+        score-bases (if (and score-bases
+                               (or (> turn-num 5) (> score-bases 0)))
+                        score-bases
+                        (count (clojure.set/intersection (set (map #(get % "planetid") bases))
+                                                         (set (map #(get % "id")
+                                                                   (filter #(= slot-num (get % "ownerid"))
+                                                                           planets))))))
+        score-capital (get my-scores "capitalships")
+        score-capital (if (and score-capital
+                               (or (> turn-num 5) (> score-capital 0)))
+                          score-capital
+                          (count (filter #(and (= slot-num (get % "ownerid"))
+                                               (> (get % "beams") 0))
+                                         ships)))
+        score-freighter (get my-scores "freighters")
+        score-freighter (if (and score-freighter
+                                 (or (> turn-num 5) (> score-freighter 0)))
+                            score-freighter
+                            (count (filter #(and (= slot-num (get % "ownerid"))
+                                                 (= (get % "beams") 0))
+                                           ships)))
         ]
     (into (sorted-map)
       {:game-name (get settings "name")
@@ -90,9 +114,9 @@
        :active-hulls (vec (.split (get player "activehulls") ","))
        :active-advantages (vec (.split (get player "activeadvantages") ","))
        :score-planets score-planets
-       :score-capital (get my-scores "capitalships")
-       :score-freighter (get my-scores "freighters")
-       :score-bases (get my-scores "starbases")
+       :score-capital score-capital
+       :score-freighter score-freighter
+       :score-bases score-bases
        :score-military (get my-scores "militaryscore")
        })))
 
