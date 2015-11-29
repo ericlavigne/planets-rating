@@ -17,10 +17,10 @@
   [{:game-id 100282 :game-name "nq-pls-2014" :turns #{[6 0] [6 1] [6 102]}}
    {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}}])
 
-; (refresh-example-files {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}})
+; (refresh-turn-examples {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}})
 
-(defn refresh-example-files
-  ([] (doseq [g example-games] (refresh-example-files g)))
+(defn refresh-turn-examples
+  ([] (doseq [g example-games] (refresh-turn-examples g)))
   ([g]
     (let [rated-ids (set (map :game-id (rating/fetch-rated-games-from-nu)))
           s3-ids (set (rating/fetch-game-ids-from-s3))
@@ -65,6 +65,14 @@
 
 (defn show-nq-pls []
   (show-game "nq-pls-2014"))
+
+(defn refresh-game-examples []
+  (doseq [example example-games]
+    (let [game (convert-game (:game-name example))
+          output-path (str "test/vgap/game_examples/" (:game-name example) ".txt")]
+      (with-open [w (clojure.java.io/writer output-path)]
+        (binding [clojure.pprint/*print-right-margin* 120]
+          (clojure.pprint/pprint game w))))))
 
 (defn convert-nq-pls-turn []
   (turn-file/convert (slurp "test/vgap/turn_examples/nq-pls-2014-p6-t102.trn")))
