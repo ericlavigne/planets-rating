@@ -4,7 +4,7 @@
 
 (deftest nq-pls-70-2014
   (testing "Confirm that NQ-PLS-70 (2014) is parsed with correct content"
-    (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/nq-pls-70-2014.txt")))]
+    (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/nq-pls-2014.txt")))]
       (is (= "NQ-PLS-70" (:name g)))
       (is (= 100282 (:id g)))
       (is (= 1 (get-in g [:planets 1 6])) "I (borg) had 1 planet on the first turn.")
@@ -22,4 +22,10 @@
               :players [{:account-name "incideous" :account-id 1887 :start-turn 1 :start-date "2014-06-19" :end-turn 85 :end-date "2015-01-12"}
                         {:account-name "scotty2beam" :account-id 18497 :start-turn 86 :start-date "2015-01-14" :end-turn 102 :end-date "2015-03-21"}]}))
     )))
+
+(deftest ally-victory
+  (testing "Madonna - two allied players can win together"
+    (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/madonna.txt")))]
+      (is (= "Madonna Sector" (:name g)))
+      (is (= [6 5] (:winners g))))))
 

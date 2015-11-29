@@ -51,11 +51,14 @@
 ;       end military
 ;       end condition (resign, drop, complete)
 
+(defn cleanup-json [turn-string]
+  (string-replace turn-string
+     ; NQ-PLS-70 (2014) game 100282 turn 0 - scores and planets are ] instead of []
+     #"\"scores\"\s*:\s*\]" "\"scores\": []"
+     #"\"planets\"\s*:\s*\]" "\"scores\": []"))
+
 (defn convert [turn-string]
-  (let [cleaned (string-replace turn-string
-                  ; NQ-PLS-70 (2014) game 100282 turn 0 - scores and planets are ] instead of []
-                  #"\"scores\"\s*:\s*\]" "\"scores\": []"
-                  #"\"planets\"\s*:\s*\]" "\"scores\": []")
+  (let [cleaned (cleanup-json turn-string)
         data (json/read-str cleaned)
         settings (get data "settings")
         turn-num (get settings "turn")
