@@ -98,12 +98,12 @@
   ([gameid] (delete-game-full-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([gameid creds] (s3/delete-object creds "vgap" (str "game/loadall/" gameid ".zip"))))
 
-(defn transfer-completed-rated-games-to-s3 ; May take days for first run. Starts with recent games.
+(defn transfer-completed-rated-games-to-s3 ; May take days for first run.
   ([] (transfer-completed-rated-games-to-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([creds] (let [available (map :game-id (filter :ended (fetch-rated-games-from-nu)))
                  already-have (fetch-game-ids-from-s3 creds)
                  remaining (clojure.set/difference (set available) (set already-have))]
-             (doseq [game-id (reverse (sort remaining))]
+             (doseq [game-id (shuffle remaining)]
                (println (str "Transfering game " game-id))
                (transfer-game-full-nu-to-s3 game-id creds)))))
 
