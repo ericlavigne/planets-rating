@@ -92,3 +92,6 @@
 
 ; (pprint (m5 "relations"))
 
+(println "******** Reminder: Whisperer requested fields: host, min rank, max rank ********")
+
+

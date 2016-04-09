@@ -2,7 +2,7 @@
   (:require [vgap.rating :as rating]
             [vgap.turn-file :as turn]))
 
-(defn convert-turns-for-game-file [game-file]
+(defn convert-turns-for-game-file [game-file] ; 30 seconds
   (rating/zip-file-map game-file turn/convert))
 
 (defn write-example-turns-for-game-id-to-file [game-id file-name]
@@ -14,7 +14,7 @@
         (clojure.pprint/pprint sorted-turns w)
         file-name))))
 
-(defn convert-turns-to-game [turns]
+(defn convert-turns-to-game [turns] ; fast
   (let [turns (filter #(> (:turn-num %) 0) turns) ; Remove turn 0, which doesn't seem meaningful and has a lot of missing data.
         turn (first turns)
         turn-num-to-turns (group-by :turn-num turns)
@@ -99,6 +99,14 @@
                                          []
                                          turns))))])
                      slot-nums))
+;        player-alliances
+;          (into (sorted-map)
+;            (map (fn [turn-num]
+;                   [turn-num
+;                    (into (sorted-map)
+;                      (map (fn [turn] [(:slot-num turn) (:score-planets turn)])
+;                           (get turn-num-to-turns turn-num)))])
+;                 turn-nums))
         turn-data (into (sorted-map)
                     (map (fn [turn-num]
                            [turn-num {:date (:turn-date (first (get turn-num-to-turns turn-num)))}])

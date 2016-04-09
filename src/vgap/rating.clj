@@ -33,7 +33,7 @@
           string
           (apply string-replace string (first others) (second others) (drop 2 others)))))
 
-(defn fetch-rated-games-from-nu []
+(defn fetch-rated-games-from-nu [] ; 5 seconds, basic info about all games, should filter by :ended property
   (let [api-games (json/read-str
                           (:body (client/get "http://api.planets.nu/games/list?status=2,3"
                                              {:query-params {"status" "2,3"}})))
@@ -53,17 +53,18 @@
         ]
     rated-games))
 
-(defn fetch-game-full-from-nu [gameid]
+(defn fetch-game-full-from-nu [gameid] ; 70 sec
   (let [req (client/get "http://api.planets.nu/game/loadall"
                         {:query-params {"gameid" gameid}
                          :as :byte-array})
         _ (assert (= 200 (:status req)) (str "Status: " (:status req)))
+        _ (assert (< 1000 (count (:body req))) (str "Response too small to be game file: " (apply str (map char (:body req)))))
         tmp-file (java.io.File/createTempFile (str "game-" gameid "-") ".zip")]
     (with-open [w (io/output-stream tmp-file)]
       (.write w (:body req)))
     tmp-file))
 
-(defn transfer-game-full-nu-to-s3
+(defn transfer-game-full-nu-to-s3 ; 2.5 minutes
   ([gameid]
      (transfer-game-full-nu-to-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([gameid creds]
@@ -92,6 +93,19 @@
        (with-open [w (io/output-stream tmp-file)]
          (.write w s3-bytes))
        tmp-file)))
+
+(defn delete-game-full-from-s3
+  ([gameid] (delete-game-full-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([gameid creds] (s3/delete-object creds "vgap" (str "game/loadall/" gameid ".zip"))))
+
+(defn transfer-completed-rated-games-to-s3 ; May take days for first run. Starts with recent games.
+  ([] (transfer-completed-rated-games-to-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([creds] (let [available (map :game-id (filter :ended (fetch-rated-games-from-nu)))
+                 already-have (fetch-game-ids-from-s3 creds)
+                 remaining (clojure.set/difference (set available) (set already-have))]
+             (doseq [game-id (reverse (sort remaining))]
+               (println (str "Transfering game " game-id))
+               (transfer-game-full-nu-to-s3 game-id creds)))))
 
 ; http://www.thecoderscorner.com/team-blog/java-and-jvm/12-reading-a-zip-file-from-java-using-zipinputstream
 ;
