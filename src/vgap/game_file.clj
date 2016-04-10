@@ -14,6 +14,26 @@
         (clojure.pprint/pprint sorted-turns w)
         file-name))))
 
+(defn convert-alliances-to-teams [player-to-allies]
+  "{2 #{7 9}, 3 #{4 6}, 4 #{3 6}, 6 #{3 4}, 7 #{2 9}, 9 #{2 7}} => #{#{2 7 9} #{3 4 6}}
+   Strict interpretation. Every member of team must be allied with every other member
+   and no one else. Teams must have at least two members."
+  (apply
+    sorted-set-by
+    (fn [set1 set2] (< (first set1) (first set2)))
+    (filter
+      #(not (nil? %))
+        (map (fn [player]
+               (let [allies (get player-to-allies player)]
+                 (when (not-empty allies)
+                   (let [team (apply sorted-set
+                                     (conj allies player))]
+                     (when (every? (fn [member] (= (disj team member)
+                                                   (get player-to-allies member)))
+                                   allies)
+                       team)))))
+             (keys player-to-allies)))))
+
 (defn convert-turns-to-game [turns] ; fast
   (let [turns (filter #(> (:turn-num %) 0) turns) ; Remove turn 0, which doesn't seem meaningful and has a lot of missing data.
         turn (first turns)
@@ -99,14 +119,26 @@
                                          []
                                          turns))))])
                      slot-nums))
-;        player-alliances
-;          (into (sorted-map)
-;            (map (fn [turn-num]
-;                   [turn-num
-;                    (into (sorted-map)
-;                      (map (fn [turn] [(:slot-num turn) (:score-planets turn)])
-;                           (get turn-num-to-turns turn-num)))])
-;                 turn-nums))
+        turn-to-player-to-allies
+          (into (sorted-map)
+            (map (fn [turn-num]
+                   [turn-num
+                    (into (sorted-map)
+                      (map (fn [turn] [(:slot-num turn) (:allies turn)])
+                           (get turn-num-to-turns turn-num)))])
+                 turn-nums))
+        turn-to-teams
+          (into (sorted-map)
+            (filter
+              #(not (nil? %))
+              (map (fn [turn-num]
+                     (let [teams (convert-alliances-to-teams (get turn-to-player-to-allies turn-num #{}))]
+                       (when (not-empty teams)
+                         [turn-num teams])))
+                   turn-nums)))
+        ;winners
+        ;  (let [final-teams ...] ...)
+        ;  (first (last (sort-by #(get % 1) (get planets max-turn))))
         turn-data (into (sorted-map)
                     (map (fn [turn-num]
                            [turn-num {:date (:turn-date (first (get turn-num-to-turns turn-num)))}])
@@ -125,6 +157,7 @@
       :military-score military-score
       :slots slots
       :turns turn-data
+      :teams turn-to-teams
      )
   ))
 

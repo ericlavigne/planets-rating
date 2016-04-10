@@ -4,12 +4,6 @@
             [clojure.data.json :as json]
   ))
 
-(deftest adding-test
-  (testing "That numbers can be added"
-    (is (= 3 (add 2 1)))
-    (is (= 5 (add 3 2)))
-  ))
-
 (def pls-expectations
   {:game-id 100282 :name "NQ-PLS-70"})
 

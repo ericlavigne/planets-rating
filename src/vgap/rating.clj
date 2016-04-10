@@ -12,9 +12,6 @@
   (:import java.io.FileInputStream
            java.util.zip.ZipInputStream))
 
-(defn add [a b]
-  (+ a b))
-
 (defn setting [k]
   (let [s (edn/read-string (slurp "settings.clj"))]
     (s k)))
@@ -76,12 +73,20 @@
 (defn fetch-game-ids-from-s3
   ([] (fetch-game-ids-from-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([creds]
-     (map (fn [s3-obj]
-             (let [game-id-str (string-replace (:key s3-obj) #"game/loadall/" "" #"\.zip" "")
-                   game-id (Integer/parseInt game-id-str)]
-               (assert (= game-id-str (str game-id)))
-               game-id))
-          (:objects (s3/list-objects creds "vgap" {:prefix "game/loadall/"})))))
+     (letfn [(convert-to-game-id [s3-obj]
+               (let [game-id-str (string-replace (:key s3-obj) #"game/loadall/" "" #"\.zip" "")
+                     game-id (Integer/parseInt game-id-str)]
+                 (assert (= game-id-str (str game-id)))
+                 game-id))]
+       (loop [game-ids-so-far [] from-marker nil]
+         (let [response (s3/list-objects creds "vgap"
+                          (merge {:prefix "game/loadall/"}
+                                 (if from-marker {:marker from-marker} {})))
+               new-game-ids (map convert-to-game-id (:objects response))
+               game-ids-so-far (concat game-ids-so-far new-game-ids)]
+           (if (:truncated? response)
+             (recur game-ids-so-far (:next-marker response))
+             (set game-ids-so-far)))))))
 
 (defn fetch-game-full-from-s3 ; Fetching from s3 takes about 10 seconds
   ([gameid]
