@@ -10,8 +10,11 @@
             [clj-time.coerce :as timec]
             [clojure.data.json :as json]
             [vgap.game-file :as game-file]
+            [vgap.nu-api :as nu]
+            [vgap.storage :as storage]
             [vgap.turn-file :as turn-file]
-            [vgap.rating :as rating]))
+            [vgap.workflow :as workflow]
+))
 
 (def example-games
   [{:game-id 100282 :game-name "nq-pls-2014" :turns #{[6 0] [6 1] [6 102]}}
@@ -22,19 +25,19 @@
 (defn refresh-turn-examples
   ([] (doseq [g example-games] (refresh-turn-examples g)))
   ([g]
-    (let [rated-ids (set (map :game-id (rating/fetch-rated-games-from-nu)))
-          s3-ids (set (rating/fetch-game-ids-from-s3))
+    (let [rated-ids (set (map :game-id (nu/fetch-rated-games)))
+          s3-ids (set (storage/fetch-game-ids-from-s3))
           game-id (:game-id g)
           game-desc (str (:game-name g) " (" game-id ")")]
       (if (not (rated-ids game-id))
         (println "Skipping" game-desc "which is not on the list of rated games")
         (do (when-not (s3-ids game-id)
               (println "Transferring" game-desc "from Nu to S3")
-              (time (rating/transfer-game-full-nu-to-s3 game-id)))
+              (time (workflow/transfer-game-full-nu-to-s3 game-id)))
             (let [_ (println "Fetching" game-desc "from S3")
-                  raw-game-file (time (rating/fetch-game-full-from-s3 game-id))
+                  raw-game-file (time (storage/fetch-game-full-from-s3 game-id))
                   _ (println "Parsing turns for" game-desc)
-                  turns (time (rating/zip-file-map raw-game-file
+                  turns (time (storage/zip-file-map raw-game-file
                                 (fn [turn-string]
                                   (let [turn (turn-file/convert turn-string)
                                         slot-turn [(:slot-num turn) (:turn-num turn)]]
