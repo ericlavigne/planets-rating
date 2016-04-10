@@ -136,9 +136,17 @@
                        (when (not-empty teams)
                          [turn-num teams])))
                    turn-nums)))
-        ;winners
-        ;  (let [final-teams ...] ...)
-        ;  (first (last (sort-by #(get % 1) (get planets max-turn))))
+        winners
+          (let [final-teams (get turn-to-teams max-turn #{})
+                final-individuals (clojure.set/difference (set slot-nums)
+                                                          (set (apply concat final-teams)))
+                teams-including-individuals (concat final-teams
+                                                    (map #(set [%]) final-individuals))
+                player-to-planet-count (get planets max-turn)
+                winning-team (last (sort-by (fn [team] (reduce + (map player-to-planet-count team)))
+                                            teams-including-individuals))
+                winners-sorted (vec (reverse (sort-by player-to-planet-count winning-team)))]
+            winners-sorted)
         turn-data (into (sorted-map)
                     (map (fn [turn-num]
                            [turn-num {:date (:turn-date (first (get turn-num-to-turns turn-num)))}])
@@ -149,7 +157,7 @@
       :name (:game-name turn)
       :short-description (:game-short-description turn)
       :win-condition (:win-condition turn)
-      :winners [winning-slot]
+      :winners winners
       :planets planets
       :bases bases
       :warships warships
