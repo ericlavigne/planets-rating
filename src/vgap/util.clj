@@ -1,5 +1,6 @@
 (ns vgap.util
-  (:require [clojure.edn :as edn]))
+  (:require [clojure.edn :as edn])
+  (import java.io.StringWriter))
 
 (defn sum [list-of-numbers]
   (apply + list-of-numbers))
@@ -15,4 +16,10 @@
       (if (empty? others)
           string
           (apply string-replace string (first others) (second others) (drop 2 others)))))
+
+(defn pprint-edn [data]
+  (let [w (StringWriter.)]
+    (binding [clojure.pprint/*print-right-margin* 120]
+      (clojure.pprint/pprint data w)
+      (.toString w))))
 

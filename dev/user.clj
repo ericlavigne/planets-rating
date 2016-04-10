@@ -13,6 +13,7 @@
             [vgap.nu-api :as nu]
             [vgap.storage :as storage]
             [vgap.turn-file :as turn-file]
+            [vgap.util :refer :all]
             [vgap.workflow :as workflow]
 ))
 

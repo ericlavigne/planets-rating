@@ -3,7 +3,8 @@
             [clojure.java.io :as io]
             [vgap.util :refer :all])
   (:import java.io.FileInputStream
-           java.util.zip.ZipInputStream))
+           java.util.zip.ZipInputStream
+           java.io.StringWriter))
 
 (defn fetch-game-ids-from-s3
   ([] (fetch-game-ids-from-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
@@ -16,6 +17,24 @@
        (loop [game-ids-so-far [] from-marker nil]
          (let [response (s3/list-objects creds "vgap"
                           (merge {:prefix "game/loadall/"}
+                                 (if from-marker {:marker from-marker} {})))
+               new-game-ids (map convert-to-game-id (:objects response))
+               game-ids-so-far (concat game-ids-so-far new-game-ids)]
+           (if (:truncated? response)
+             (recur game-ids-so-far (:next-marker response))
+             (set game-ids-so-far)))))))
+
+(defn fetch-game-summary-ids-from-s3
+  ([] (fetch-game-summary-ids-from-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([creds]
+     (letfn [(convert-to-game-id [s3-obj]
+               (let [game-id-str (string-replace (:key s3-obj) #"game/summary/" "" #"\.edn" "")
+                     game-id (Integer/parseInt game-id-str)]
+                 (assert (= game-id-str (str game-id)))
+                 game-id))]
+       (loop [game-ids-so-far [] from-marker nil]
+         (let [response (s3/list-objects creds "vgap"
+                          (merge {:prefix "game/summary/"}
                                  (if from-marker {:marker from-marker} {})))
                new-game-ids (map convert-to-game-id (:objects response))
                game-ids-so-far (concat game-ids-so-far new-game-ids)]
@@ -37,6 +56,19 @@
 (defn delete-game-full-from-s3
   ([gameid] (delete-game-full-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([gameid creds] (s3/delete-object creds "vgap" (str "game/loadall/" gameid ".zip"))))
+
+(defn fetch-game-summary-from-s3 ; Fetching from s3 takes about 10 seconds
+  ([gameid]
+     (fetch-game-summary-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([gameid creds]
+     (let [s3-res (s3/get-object creds "vgap" (str "game/summary/" gameid ".edn"))
+           s3-bytes (org.apache.commons.io.IOUtils/toByteArray (:content s3-res))
+           tmp-file (java.io.File/createTempFile (str "game-summary-" gameid "-") ".edn")]
+       (with-open [w (io/output-stream tmp-file)]
+         (.write w s3-bytes))
+       (let [res (slurp tmp-file)]
+         (.delete tmp-file)
+         res))))
 
 ; http://www.thecoderscorner.com/team-blog/java-and-jvm/12-reading-a-zip-file-from-java-using-zipinputstream
 ;

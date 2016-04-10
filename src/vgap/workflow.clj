@@ -1,5 +1,6 @@
 (ns vgap.workflow
   (:require [aws.sdk.s3 :as s3]
+            [vgap.game-file :as game-file]
             [vgap.nu-api :as nu]
             [vgap.storage :as storage]
             [vgap.util :refer :all]))
@@ -21,4 +22,26 @@
              (doseq [game-id (shuffle remaining)]
                (println (str "Transfering game " game-id))
                (transfer-game-full-nu-to-s3 game-id creds)))))
+
+(defn transform-game-full-to-summary-in-s3 ; 3.5 minutes
+  ([gameid]
+    (transform-game-full-to-summary-in-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([gameid creds]
+    (let [full-game-file (storage/fetch-game-full-from-s3 gameid creds)
+          turns (game-file/convert-turns-for-game-file full-game-file)
+          _ (.delete full-game-file)
+          game-summary (game-file/convert-turns-to-game turns)
+          formatted-summary (pprint-edn game-summary)
+          _ (s3/put-object creds "vgap" (str "game/summary/" gameid ".edn") formatted-summary)]
+      nil)))
+
+(defn transform-all-game-full-to-summary-in-s3
+  ([] (transform-all-game-full-to-summary-in-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([creds]
+    (let [available (storage/fetch-game-ids-from-s3 creds)
+          already-have (storage/fetch-game-summary-ids-from-s3 creds)
+          remaining (clojure.set/difference (set available) (set already-have))]
+      (doseq [game-id (shuffle remaining)]
+        (println (str "Transforming game " game-id))
+          (transform-game-full-to-summary-in-s3 game-id creds)))))
 
