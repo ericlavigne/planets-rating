@@ -43,5 +43,8 @@
           remaining (clojure.set/difference (set available) (set already-have))]
       (doseq [game-id (shuffle remaining)]
         (println (str "Transforming game " game-id))
-          (transform-game-full-to-summary-in-s3 game-id creds)))))
+        (try
+          (transform-game-full-to-summary-in-s3 game-id creds)
+          (catch Exception exception
+            (clojure.stacktrace/e)))))))
 
