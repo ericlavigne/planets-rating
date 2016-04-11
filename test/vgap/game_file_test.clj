@@ -29,3 +29,9 @@
       (is (= "Madonna Sector" (:name g)))
       (is (= [6 5] (:winners g))))))
 
+(deftest null-account-ids
+  (testing "Coping with null account IDs"
+    (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/epsilon-indi-2012.txt")))]
+      (is (= "Epsilon Indi Sector" (:name g)))
+      (is (= [5 11] (:winners g))))))
+

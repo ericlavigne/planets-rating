@@ -97,7 +97,7 @@
                                                (concat (butlast players)
                                                        [(sorted-map
                                                           :account-name (:account-name turn)
-                                                          :account-id (if (zero? (:account-id turn))
+                                                          :account-id (if (zero? (or (:account-id turn) 0))
                                                                           (:account-id previous)
                                                                           (or (:account-id previous) (:account-id turn)))
                                                           :start-turn (:start-turn previous)
@@ -108,7 +108,7 @@
                                                :else
                                                (concat players [(sorted-map
                                                                   :account-name (:account-name turn)
-                                                                  :account-id (if (zero? (:account-id turn))
+                                                                  :account-id (if (zero? (or (:account-id turn) 0))
                                                                                   nil
                                                                                   (:account-id turn))
                                                                   :start-turn (:turn-num turn)

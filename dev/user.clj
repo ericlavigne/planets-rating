@@ -55,6 +55,7 @@
 
 (defn refresh-turn-list-examples []
   (time (game-file/write-example-turns-for-game-id-to-file 100282 "test/vgap/turn_list_examples/nq-pls-2014.txt"))
+  (time (game-file/write-example-turns-for-game-id-to-file 42401 "test/vgap/turn_list_examples/epsilon-indi-2012.txt"))
 )
 
 (defn convert-game [game-name]
