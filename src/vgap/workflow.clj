@@ -45,6 +45,7 @@
         (println (str "Transforming game " game-id))
         (try
           (transform-game-full-to-summary-in-s3 game-id creds)
-          (catch Exception exception
-            (clojure.stacktrace/e)))))))
+          (catch Exception e
+            (clojure.stacktrace/print-throwable e)
+            (clojure.stacktrace/print-cause-trace e)))))))
 
