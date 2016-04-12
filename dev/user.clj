@@ -15,6 +15,7 @@
             [vgap.turn-file :as turn-file]
             [vgap.util :refer :all]
             [vgap.workflow :as workflow]
+            [vgap.whisperer :as whisperer]
 ))
 
 (def example-games

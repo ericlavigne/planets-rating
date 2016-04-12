@@ -5,3 +5,6 @@ target
 .lein-failures
 .lein-repl-history
 .nrepl-port
+whisperer-games.edn
+whisperer-games.edn.zip
+
