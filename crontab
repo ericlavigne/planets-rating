@@ -1,0 +1,13 @@
+SHELL=/bin/bash
+
+# EDITOR=nano crontab -e
+# tail -f /var/log/syslog
+# tail -f /home/ubuntu/workspace/nu-to-full.log
+# tail -f /home/ubuntu/workspace/full-to-summary.log
+
+# m    h  dom  mon  dow  command
+  20   *  *    *    *    cd /home/ubuntu/workspace/planets-rating; /usr/local/bin/lein trampoline run -m vgap.workflow/transfer-completed-rated-games-to-s3 >> /home/ubuntu/workspace/nu-to-full.log 2>&1
+  50   *  *    *    *    cd /home/ubuntu/workspace/planets-rating; /usr/local/bin/lein trampoline run -m vgap.workflow/transform-all-game-full-to-summary-in-s3 >> /home/ubuntu/workspace/full-to-summary.log 2>&1
+  */5  *  *    *    *    find /tmp -name "*.zip" -mmin +60 -delete
+  */5  *  *    *    *    find /tmp -name "*.clj" -mmin +60 -delete
+

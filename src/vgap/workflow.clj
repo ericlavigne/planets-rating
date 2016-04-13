@@ -18,10 +18,15 @@
   ([] (transfer-completed-rated-games-to-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([creds] (let [available (map :game-id (filter :ended (nu/fetch-rated-games)))
                  already-have (storage/fetch-game-ids-from-s3 creds)
-                 remaining (clojure.set/difference (set available) (set already-have))]
+                 remaining (clojure.set/difference (set available) (set already-have))
+                 start-millis (.getTime (java.util.Date.))]
              (doseq [game-id (shuffle remaining)]
-               (println (str "Transfering game " game-id))
-               (transfer-game-full-nu-to-s3 game-id creds)))))
+               (let [minutes-passed (int (/ (- (.getTime (java.util.Date.)) start-millis)
+                                            (* 1000 60)))]
+                 (when (>= minutes-passed 25)
+                   (throw (Exception. "Timeout after 25 minutes")))
+                 (println (str "Transfering game " game-id " (" minutes-passed " minutes passed)"))
+                 (transfer-game-full-nu-to-s3 game-id creds))))))
 
 (defn transform-game-full-to-summary-in-s3 ; 3.5 minutes
   ([gameid]
@@ -40,12 +45,17 @@
   ([creds]
     (let [available (storage/fetch-game-ids-from-s3 creds)
           already-have (storage/fetch-game-summary-ids-from-s3 creds)
-          remaining (clojure.set/difference (set available) (set already-have))]
+          remaining (clojure.set/difference (set available) (set already-have))
+          start-millis (.getTime (java.util.Date.))]
       (doseq [game-id (shuffle remaining)]
-        (println (str "Transforming game " game-id))
-        (try
-          (transform-game-full-to-summary-in-s3 game-id creds)
-          (catch Exception e
-            (clojure.stacktrace/print-throwable e)
-            (clojure.stacktrace/print-cause-trace e)))))))
+        (let [minutes-passed (int (/ (- (.getTime (java.util.Date.)) start-millis)
+                                     (* 1000 60)))]
+          (when (>= minutes-passed 25)
+            (throw (Exception. "Timeout after 25 minutes")))
+          (println (str "Transforming game " game-id " (" minutes-passed " minutes passed)"))
+          (try
+            (transform-game-full-to-summary-in-s3 game-id creds)
+            (catch Exception e
+              (clojure.stacktrace/print-throwable e)
+              (clojure.stacktrace/print-cause-trace e))))))))
 
