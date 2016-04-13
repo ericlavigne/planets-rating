@@ -7,4 +7,5 @@ target
 .nrepl-port
 whisperer-games.edn
 whisperer-games.edn.zip
+whisperer/*
 
