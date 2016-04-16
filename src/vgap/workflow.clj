@@ -32,13 +32,15 @@
   ([gameid]
     (transform-game-full-to-summary-in-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([gameid creds]
-    (let [full-game-file (storage/fetch-game-full-from-s3 gameid creds)
-          turns (game-file/convert-turns-for-game-file full-game-file)
-          _ (.delete full-game-file)
-          game-summary (game-file/convert-turns-to-game turns)
-          formatted-summary (pprint-edn game-summary)
-          _ (s3/put-object creds "vgap" (str "game/summary/" gameid ".edn") formatted-summary)]
-      nil)))
+    (let [full-game-file (storage/fetch-game-full-from-s3 gameid creds)]
+      (try
+        (let [turns (game-file/convert-turns-for-game-file full-game-file)
+              _ (.delete full-game-file)
+              game-summary (game-file/convert-turns-to-game turns)
+              formatted-summary (pprint-edn game-summary)
+              _ (s3/put-object creds "vgap" (str "game/summary/" gameid ".edn") formatted-summary)]
+          nil)
+        (finally (.delete full-game-file))))))
 
 (defn transform-all-game-full-to-summary-in-s3
   ([] (transform-all-game-full-to-summary-in-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
