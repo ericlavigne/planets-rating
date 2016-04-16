@@ -35,3 +35,9 @@
       (is (= "Epsilon Indi Sector" (:name g)))
       (is (= [5 11] (:winners g))))))
 
+(deftest truncated-turn-file
+  (testing "Can parse game with truncated turn file (player 5, turn 71)"
+    (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/bubble.txt")))]
+      (is (= "Bubble World System" (:name g)))
+      (is (= [3 7] (:winners g))))))
+

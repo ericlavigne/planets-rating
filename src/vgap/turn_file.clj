@@ -55,11 +55,33 @@
   (string-replace turn-string
      ; NQ-PLS-70 (2014) game 100282 turn 0 - scores and planets are ] instead of []
      #"\"scores\"\s*:\s*\]" "\"scores\": []"
-     #"\"planets\"\s*:\s*\]" "\"scores\": []"))
+     #"\"planets\"\s*:\s*\]" "\"planets\": []"
+     ; Bubble World (2011) game 21094 player 1 turn 0 - maps are also ] instead of []
+     #"\"maps\"\s*:\s*\]" "\"maps\": []"))
+
+(defn parse-json-with-autotermination
+  "If JSON is truncated, try adding a few end characters to allow partial reading"
+  ([json-str] (try
+                (json/read-str json-str)
+                (catch java.io.EOFException e
+                  (parse-json-with-autotermination json-str e 1))))
+  ([json-str prev-exception attempts]
+     (let [prev-msg (.getMessage prev-exception)
+           completion-needed (cond (re-find #"inside string" prev-msg) "\""
+                                   (re-find #"inside object" prev-msg) "}"
+                                   (re-find #"inside array" prev-msg) "]"
+                                   :else (throw (ex-info "Unrecognized variety of JSON termination" {} prev-exception)))
+           new-json-str (str json-str completion-needed)]
+       (try (json/read-str new-json-str)
+            (catch java.io.EOFException e
+              (parse-json-with-autotermination new-json-str e (inc attempts)))))))
 
 (defn convert [turn-string]
   (let [cleaned (cleanup-json turn-string)
-        data (json/read-str cleaned)
+        data (if (.endsWith (clojure.string/trim cleaned) "}")
+                 (json/read-str cleaned)
+                 (do (println "Warning: Turn file does not end in '}'. Attempting auto-termination.")
+                     (parse-json-with-autotermination cleaned)))
         settings (get data "settings")
         turn-num (get settings "turn")
         game (get data "game")
@@ -134,8 +156,12 @@
        :race (get player "raceid")
        :team (get player "teamid")
        :priority-points (get player "prioritypoints")
-       :active-hulls (vec (.split (get player "activehulls") ","))
-       :active-advantages (vec (.split (get player "activeadvantages") ","))
+       :active-hulls (if (contains? player "activehulls")
+                         (vec (.split (get player "activehulls") ","))
+                         [])
+       :active-advantages (if (contains? player "activeadvantages")
+                              (vec (.split (get player "activeadvantages") ","))
+                              [])
        :score-planets score-planets
        :score-capital score-capital
        :score-freighter score-freighter

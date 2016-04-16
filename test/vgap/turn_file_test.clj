@@ -26,6 +26,9 @@
       (is (= 0 (:score-capital t)))
       (is (= 1 (:score-freighter t)))
     ))
+  )
+
+(deftest madonna-2014
   (testing "Madonna - allies"
     (let [p5 (load-turn "madonna-p5-t167")
           p6 (load-turn "madonna-p6-t167")
@@ -33,5 +36,16 @@
       (is (= (:allies p5) #{6}))
       (is (= (:allies p6) #{5}))
       (is (= (:allies p11) #{}))))
-   )
+  )
+
+(deftest bubble-2011
+  (testing "Bubble - can parse player 1 turn 0 (previously unmatched ])"
+    (load-turn "bubble-p1-t0"))
+  (testing "Bubble - can parse player 5 turn 71 (JSON truncated mid-string)"
+    (let [p5t71 (load-turn "bubble-p5-t71")]
+      (is (= 137 (:score-planets p5t71)))))
+  (testing "Bubble - winner has correct planets near end"
+    (let [p3t91 (load-turn "bubble-p3-t91")]
+      (is (= 152 (:score-planets p3t91)))))
+  )
 

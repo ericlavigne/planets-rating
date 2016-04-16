@@ -82,19 +82,27 @@
   (let [buffer (byte-array 2048)
         fis (FileInputStream. file)
         zis (ZipInputStream. fis)
-        res (loop [zip-entry (.getNextEntry zis)
-                   zip-entry-pieces []
-                   results []]
-              (if (nil? zip-entry)
-                  results
-                  (let [len (.read zis buffer)]
-                    (if (> len 0)
-                        (recur zip-entry
-                               (conj zip-entry-pieces (String. buffer 0 len))
-                               results)
-                        (recur (.getNextEntry zis)
-                               []
-                               (conj results (fun (apply str zip-entry-pieces))))))))]
-    (.close zis)
+        res (try
+              (loop [zip-entry (.getNextEntry zis)
+                     zip-entry-pieces []
+                     results []]
+                (if (nil? zip-entry)
+                    results
+                    (let [len (.read zis buffer)]
+                      (if (> len 0)
+                          (recur zip-entry
+                                 (conj zip-entry-pieces (String. buffer 0 len))
+                                 results)
+                          (recur (.getNextEntry zis)
+                                 []
+                                 (conj results
+                                       (try
+                                         (fun (apply str zip-entry-pieces))
+                                         (catch Exception e
+                                           (throw (ex-info (str "Exception calling map function in zip-file-map on file "
+                                                                (.getName zip-entry))
+                                                           {:zip-entry zip-entry} e))))
+                                 ))))))
+              (finally (.close zis)))]
     res))
 
