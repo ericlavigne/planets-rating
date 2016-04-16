@@ -57,3 +57,7 @@
   (testing "Tanascuis (2012) game 44790 - key missing value in object for player 8 turn 10"
     (load-turn "tanascuis-2012-44790-p8-t10")))
 
+(deftest leshy
+  (testing "Leshy (2012) game 33663 - non-string key in object for player 1 turn 88"
+    (load-turn "leshy-2012-33663-p1-t88")))
+
