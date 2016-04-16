@@ -66,17 +66,21 @@
   "If JSON is truncated, try adding a few end characters to allow partial reading"
   ([json-str] (try
                 (json/read-str json-str)
-                (catch java.io.EOFException e
+                (catch Exception e
                   (parse-json-with-autotermination json-str e 1))))
   ([json-str prev-exception attempts]
+     (when (> attempts 9) (throw (ex-info "Giving up after 10 attempts to autoterminate" {} prev-exception)))
      (let [prev-msg (.getMessage prev-exception)
-           completion-needed (cond (re-find #"inside string" prev-msg) "\""
-                                   (re-find #"inside object" prev-msg) "}"
-                                   (re-find #"inside array" prev-msg) "]"
-                                   :else (throw (ex-info "Unrecognized variety of JSON termination" {} prev-exception)))
-           new-json-str (str json-str completion-needed)]
+           new-json-str (cond (re-find #"inside string" prev-msg) (str json-str "\"")
+                              (re-find #"inside object" prev-msg) (str json-str "}")
+                              (re-find #"inside array" prev-msg) (str json-str "]")
+                              (re-find #"key missing value in object" prev-msg) (string-replace json-str #",[^,]*\z" "")
+                              (re-find #"[\-\d]+\z" json-str) (string-replace json-str #"[\-\d]+\z" " null")
+                              :else (throw (ex-info (str "Unrecognized variety of JSON termination with final characters: "
+                                                         (subs json-str (- (.length json-str) 20)))
+                                                    {} prev-exception)))]
        (try (json/read-str new-json-str)
-            (catch java.io.EOFException e
+            (catch Exception e
               (parse-json-with-autotermination new-json-str e (inc attempts)))))))
 
 (defn convert [turn-string]
