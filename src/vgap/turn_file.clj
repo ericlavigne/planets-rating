@@ -57,7 +57,10 @@
      #"\"scores\"\s*:\s*\]" "\"scores\": []"
      #"\"planets\"\s*:\s*\]" "\"planets\": []"
      ; Bubble World (2011) game 21094 player 1 turn 0 - maps are also ] instead of []
-     #"\"maps\"\s*:\s*\]" "\"maps\": []"))
+     #"\"maps\"\s*:\s*\]" "\"maps\": []"
+     ; Fast Start 19 (2010) game 1679 player 3 turn 49 - ships are ] instead of []
+     #"\"ships\"\s*:\s*\]" "\"ships\": []"
+     ))
 
 (defn parse-json-with-autotermination
   "If JSON is truncated, try adding a few end characters to allow partial reading"

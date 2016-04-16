@@ -49,3 +49,7 @@
       (is (= 152 (:score-planets p3t91)))))
   )
 
+(deftest faststart19
+  (testing "Fast Start 19 - unmatched ] for player 3 turn 49"
+    (load-turn "faststart19-2010-p3-t49")))
+
