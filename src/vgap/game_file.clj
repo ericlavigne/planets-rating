@@ -18,9 +18,7 @@
   "{2 #{7 9}, 3 #{4 6}, 4 #{3 6}, 6 #{3 4}, 7 #{2 9}, 9 #{2 7}} => #{#{2 7 9} #{3 4 6}}
    Strict interpretation. Every member of team must be allied with every other member
    and no one else. Teams must have at least two members."
-  (apply
-    sorted-set-by
-    (fn [set1 set2] (< (first set1) (first set2)))
+  (set
     (filter
       #(not (nil? %))
         (map (fn [player]
@@ -39,6 +37,11 @@
         turn (first turns)
         turn-num-to-turns (group-by :turn-num turns)
         turn-nums (sort (keys turn-num-to-turns))
+        final-turns (turn-num-to-turns (last turn-nums))
+        final-team-turns (remove (fn [turn] (#{nil 0} (:team turn))) final-turns)
+        permanent-teams (set (map
+                               #(apply sorted-set (map :slot-num %))
+                               (vals (group-by :team final-team-turns))))
         planets (into (sorted-map)
                   (map (fn [turn-num]
                          [turn-num
@@ -132,7 +135,11 @@
             (filter
               #(not (nil? %))
               (map (fn [turn-num]
-                     (let [teams (convert-alliances-to-teams (get turn-to-player-to-allies turn-num #{}))]
+                     (let [teams (apply sorted-set-by
+                                        #(< (first %1) (first %2))
+                                        (clojure.set/union
+                                          permanent-teams
+                                          (convert-alliances-to-teams (get turn-to-player-to-allies turn-num #{}))))]
                        (when (not-empty teams)
                          [turn-num teams])))
                    turn-nums)))
