@@ -57,11 +57,15 @@
   (testing "Tanascuis (2012) game 44790 - key missing value in object for player 8 turn 10"
     (load-turn "tanascuis-2012-44790-p8-t10")))
 
-(deftest leshy
+(deftest leshy-2012
   (testing "Leshy (2012) game 33663 - non-string key in object for player 1 turn 88"
     (load-turn "leshy-2012-33663-p1-t88")))
 
 (deftest morning-star
   (testing "Morning Star (2012) game 36293 - non-string key in object for player 1 turn 73"
     (load-turn "leshy-2012-33663-p1-t88")))
+
+(deftest leshy-2011
+  (testing "Leshy (2011) game 13236 - unexpected character ] for player 1 turn 15"
+    (load-turn "leshy-2011-13236-p1-t15")))
 

@@ -60,6 +60,8 @@
      #"\"maps\"\s*:\s*\]" "\"maps\": []"
      ; Fast Start 19 (2010) game 1679 player 3 turn 49 - ships are ] instead of []
      #"\"ships\"\s*:\s*\]" "\"ships\": []"
+     ; Leshy (2011) game 13236 player 1 turn 15 - minefields are ] instead of []
+     #"\"minefields\"\s*:\s*\]" "\"minefields\": []"
      ; Leshy (2012) game 33663 player 1 turn 88
      ; Ships have history that doesn't match json-format: "history":1183,1814:1183,1814:
      ; Battle Star (2012) game 36293 player 1 turn 73 confuses this issue further by
