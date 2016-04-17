@@ -174,6 +174,7 @@
       :turns turn-data
       :teams turn-to-teams
       :team-game (not (empty? permanent-teams))
+      :host (:host-username turn)
      )
   ))
 

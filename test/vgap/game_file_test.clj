@@ -17,6 +17,7 @@
       (is (= 5 (get-in g [:freighters 102 6])))
       (is (= 491566 (get-in g [:military-score 102 6])))
       (is (= [10] (:winners g)) "Yahoud won the game (Rebels, slot 10)")
+      (is (= "mule" (:host g)))
       (is (= (get-in g [:slots 5])
              {:race 5
               :players [{:account-name "incideous" :account-id 1887 :start-turn 1 :start-date "2014-06-19" :end-turn 85 :end-date "2015-01-12"}
