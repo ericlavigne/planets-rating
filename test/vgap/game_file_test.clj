@@ -27,12 +27,14 @@
   (testing "Madonna - two allied players can win together"
     (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/madonna.txt")))]
       (is (= "Madonna Sector" (:name g)))
+      (is (= false (:team-game g)))
       (is (= [6 5] (:winners g))))))
 
 (deftest team-victory
   (testing "Nercodonia - two players in a team can win together"
     (let [g (game/convert-turns-to-game (read-string (slurp "test/vgap/turn_list_examples/nercodonia.txt")))]
       (is (= "Nercodonia Sector" (:name g)))
+      (is (= true (:team-game g)))
       (is (= [12 11] (:winners g))))))
 
 (deftest null-account-ids

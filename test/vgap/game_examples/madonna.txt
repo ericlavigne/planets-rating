@@ -803,6 +803,7 @@
      :start-date "2014-04-12",
      :start-turn 17}],
    :race 11}},
+ :team-game false,
  :teams
  {37 #{#{5 6}},
   38 #{#{5 6}},
