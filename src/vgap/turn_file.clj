@@ -140,7 +140,6 @@
                             (count (filter #(and (= slot-num (get % "ownerid"))
                                                  (= (get % "beams") 0))
                                            ships)))
-        relations (get data "relations")
         ]
     (sorted-map
        :game-name (get settings "name")

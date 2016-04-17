@@ -21,6 +21,7 @@
 (def example-games
   [{:game-id 100282 :game-name "nq-pls-2014" :turns #{[6 0] [6 1] [6 102]}}
    {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}}
+   {:game-id 94273 :game-name "nercodonia" :turns #{[11 50]}}
    {:game-id 21094 :game-name "bubble" :turns #{[1 0] [3 91] [5 71]}}])
 
 ; (refresh-turn-examples {:game-id 94061 :game-name "madonna" :turns #{[5 167] [6 167] [11 167]}})

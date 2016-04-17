@@ -531,6 +531,7 @@
      :start-date "2014-06-19",
      :start-turn 1}],
    :race 11}},
+ :teams {},
  :turns
  {1 {:date "2014-06-19"},
   2 {:date "2014-06-19"},
