@@ -92,6 +92,8 @@
             (catch Exception e
               (parse-json-with-autotermination new-json-str e (inc attempts)))))))
 
+(def relation-codes {0 nil 1 :ambassador 2 :passage 3 :intel 4 :alliance})
+
 (defn convert [turn-string]
   (let [cleaned (cleanup-json turn-string)
         data (if (.endsWith (clojure.string/trim cleaned) "}")
@@ -182,6 +184,12 @@
        :score-freighter score-freighter
        :score-bases score-bases
        :score-military (get my-scores "militaryscore")
+       :relations (into (sorted-map)
+                    (map (fn [relation]
+                           [(get relation "playertoid")
+                            {:offer (relation-codes (get relation "relationto"))
+                             :receive (relation-codes (get relation "relationfrom"))}])
+                         (remove #(= (% "playertoid") slot-num) relations)))
        :allies (set (map #(get % "playertoid")
                          (filter #(= 4 (% "relationfrom") (% "relationto"))
                                  relations)))
