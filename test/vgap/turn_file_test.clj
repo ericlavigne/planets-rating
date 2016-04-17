@@ -61,3 +61,7 @@
   (testing "Leshy (2012) game 33663 - non-string key in object for player 1 turn 88"
     (load-turn "leshy-2012-33663-p1-t88")))
 
+(deftest morning-star
+  (testing "Morning Star (2012) game 36293 - non-string key in object for player 1 turn 73"
+    (load-turn "leshy-2012-33663-p1-t88")))
+

@@ -62,7 +62,11 @@
      #"\"ships\"\s*:\s*\]" "\"ships\": []"
      ; Leshy (2012) game 33663 player 1 turn 88
      ; Ships have history that doesn't match json-format: "history":1183,1814:1183,1814:
-     #"\"history\":(\d+,\d+:)*," ""
+     ; Battle Star (2012) game 36293 player 1 turn 73 confuses this issue further by
+     ; omitting the last colon.
+     ; Current games represent history as list of maps (valid JSON) which should not
+     ; be affected by this patch.
+     #"\"history\":\d[\d,:]*" ""
      ))
 
 (defn parse-json-with-autotermination

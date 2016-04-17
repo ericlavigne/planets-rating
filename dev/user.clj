@@ -93,12 +93,6 @@
         cleaned (turn-file/cleanup-json turn-string)]
     (json/read-str cleaned)))
 
-(def m5 (parse-turn-json "madonna-p5-t167"))
-(def m6 (parse-turn-json "madonna-p6-t167"))
-(def m11 (parse-turn-json "madonna-p11-t167"))
-
-; (pprint (m5 "relations"))
-
 (println "******** Reminder: Whisperer requested fields: host, min rank, max rank ********")
 
 
