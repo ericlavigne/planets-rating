@@ -96,6 +96,6 @@
         cleaned (turn-file/cleanup-json turn-string)]
     (json/read-str cleaned)))
 
-(println "******** Reminder: Whisperer requested fields: host, min rank, max rank ********")
+(println "******** Reminder: Whisperer requested fields: min rank, max rank (requiredlevelid and maxlevelid in /games/list API) ********")
 
 
