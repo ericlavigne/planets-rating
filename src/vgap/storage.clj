@@ -57,6 +57,16 @@
   ([gameid] (delete-game-full-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
   ([gameid creds] (s3/delete-object creds "vgap" (str "game/loadall/" gameid ".zip"))))
 
+(defn delete-game-summary-from-s3
+  ([gameid] (delete-game-summary-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([gameid creds] (s3/delete-object creds "vgap" (str "game/summary/" gameid ".edn"))))
+
+(defn delete-all-game-summaries-from-s3
+  ([] (delete-all-game-summaries-from-s3 {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
+  ([creds]
+    (doseq [gameid (fetch-game-summary-ids-from-s3 creds)]
+      (delete-game-summary-from-s3 gameid creds))))
+
 (defn fetch-game-summary-from-s3 ; Fetching from s3 takes about 10 seconds
   ([gameid]
      (fetch-game-summary-from-s3 gameid {:access-key (setting :aws-access-key) :secret-key (setting :aws-secret-key)}))
