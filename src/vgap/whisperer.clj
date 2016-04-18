@@ -39,7 +39,6 @@
             final-turn-date (:end-date converted)
             final-turn-year (aget (.split (or final-turn-date "unknown") "-") 0)
             file-name (str "whisperer/" final-turn-year "/game-" game-id ".edn")]
-        (when (:min-nu-rank converted) (println (str "Found game with min rank: " file-name)))
         (clojure.java.io/make-parents file-name)
         (spit file-name (util/pprint-edn converted))))))
 
