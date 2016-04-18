@@ -37,7 +37,8 @@
         turn (first turns)
         turn-num-to-turns (group-by :turn-num turns)
         turn-nums (sort (keys turn-num-to-turns))
-        final-turns (turn-num-to-turns (last turn-nums))
+        final-turn-num (last turn-nums)
+        final-turns (turn-num-to-turns final-turn-num)
         final-team-turns (remove (fn [turn] (#{nil 0} (:team turn))) final-turns)
         permanent-teams (set (map
                                #(apply sorted-set (map :slot-num %))
@@ -77,9 +78,6 @@
                                    (map (fn [turn] [(:slot-num turn) (:score-military turn)])
                                         (get turn-num-to-turns turn-num)))])
                               turn-nums))
-        max-turn (apply max turn-nums)
-        ; Highest planet count at end, ignoring alliances and winning conditions
-        winning-slot (first (last (sort-by #(get % 1) (get planets max-turn))))
         slot-num-to-turns (group-by :slot-num turns)
         slot-nums (sort (keys slot-num-to-turns))
         slots (into (sorted-map)
@@ -122,6 +120,26 @@
                                          []
                                          turns))))])
                      slot-nums))
+        relations (into (sorted-map)
+                    (remove #(empty? (last %))
+                      (map (fn [turn-num]
+                             [turn-num
+                              (into (sorted-map)
+                                (map (fn [turn]
+                                       (let [player1 (:slot-num turn)
+                                             pairs-of-player-and-relation
+                                               (map (fn [other-player]
+                                                      (let [rel-type (get-in turn [:relations other-player :offer])]
+                                                        [other-player
+                                                         (if (= rel-type :ambassador) nil rel-type) ; Don't care about ambassadors.
+                                                        ]))
+                                                    (remove #{(:slot-num turn)} slot-nums))
+                                             non-trivial-pairs (remove #(nil? (last %)) pairs-of-player-and-relation)
+                                             player2-to-relation (into (sorted-map) non-trivial-pairs)]
+                                         (when-not (empty? non-trivial-pairs)
+                                           [player1 player2-to-relation])))
+                                     (turn-num-to-turns turn-num)))])
+                           turn-nums)))
         turn-to-player-to-allies
           (into (sorted-map)
             (map (fn [turn-num]
@@ -144,12 +162,12 @@
                          [turn-num teams])))
                    turn-nums)))
         winners
-          (let [final-teams (get turn-to-teams max-turn #{})
+          (let [final-teams (get turn-to-teams final-turn-num #{})
                 final-individuals (clojure.set/difference (set slot-nums)
                                                           (set (apply concat final-teams)))
                 teams-including-individuals (concat final-teams
                                                     (map #(set [%]) final-individuals))
-                player-to-planet-count (get planets max-turn)
+                player-to-planet-count (get planets final-turn-num)
                 winning-team (last (sort-by (fn [team] (reduce + (map player-to-planet-count team)))
                                             teams-including-individuals))
                 winners-sorted (vec (reverse (sort-by player-to-planet-count winning-team)))]
@@ -174,6 +192,7 @@
       :turns turn-data
       :teams turn-to-teams
       :team-game (not (empty? permanent-teams))
+      :relations relations
       :host (:host-username turn)
      )
   ))
